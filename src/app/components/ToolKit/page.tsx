@@ -1,19 +1,21 @@
 "use client";
 import { menuItems } from "@/app/constants";
+import { changeBrushSize } from "@/app/slice/toolBoxSlice";
 import React, { ChangeEvent, useState } from "react";
 import { ChromePicker, ColorResult } from "react-color";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 function ToolBox() {
+  const dispatch = useDispatch()
   const [displayColorPicker, setDisplayColorPicker] = useState(false);
   const [selectedColor, setSelectedColor] = useState("#000000");
   const [brushSize, setBrushSize] = useState(1);
 
 
-  const actionMenuItem = useSelector((state:RootState)=>state.menu.activeMenuItem)
+  const activeMenuItem = useSelector((state:RootState)=>state.menu.activeMenuItem)
 
-  const showStroke = actionMenuItem === menuItems.PENCIL
+  const showStroke = activeMenuItem === menuItems.PENCIL
 
-  const showEraser = actionMenuItem === menuItems.ERASER
+  const showEraser = activeMenuItem === menuItems.ERASER
   const handleClick = () => {
     setDisplayColorPicker(!displayColorPicker);
   };
@@ -24,9 +26,11 @@ function ToolBox() {
 
   const handleChangeColor = (color: ColorResult) => {
     setSelectedColor(color.hex);
+    dispatch(changeBrushSize({item:activeMenuItem,color:color.hex}))
   };
 
   const updateBrushSize = (e: ChangeEvent<HTMLInputElement>) => {
+    dispatch(changeBrushSize({item:activeMenuItem,size:e.target.value}))
     setBrushSize(+e.target.value);
   };
 
@@ -55,7 +59,7 @@ function ToolBox() {
         </div>
         <div>
           <div
-            className="w-12 h-12 rounded-lg mt-2"
+            className="w-7 h-7 rounded-lg mt-2"
             style={{ backgroundColor: selectedColor }}
           ></div>
         </div>

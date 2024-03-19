@@ -1,5 +1,5 @@
 export const colourHex = {
-   colour:''
+   colour:'black',
 }
 
 export const menuItems = {

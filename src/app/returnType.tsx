@@ -6,3 +6,7 @@ interface MenuState{
     activeMenuItem: string;
 
 }
+
+interface ForToolBox{
+    toolbox:string[]
+}
