@@ -7,7 +7,7 @@ const initialState = {
     size: 3,
   },
   [menuItems.ERASER]: {
-    color: colourHex.colour,
+    color: "#FFFFFF",
     size: 3,
   },
   [menuItems.UNDO]: {},

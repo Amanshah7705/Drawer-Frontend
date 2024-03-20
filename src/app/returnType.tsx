@@ -10,3 +10,8 @@ interface MenuState{
 interface ForToolBox{
     toolbox:string[]
 }
+
+interface ForColorAndSize{
+     color:string,
+     size:number
+}

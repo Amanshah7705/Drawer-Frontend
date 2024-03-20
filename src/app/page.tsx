@@ -4,10 +4,11 @@ import ToolBox from "./components/ToolKit/page";
 
 export default function Home() {
   return (
-    <div >
-      <Menu/>
-      <ToolBox/>
-      <Board/>
-    </div>
+    <div className='block w-full h-full letter-spacing-0.25'>
+    <Menu />
+    <ToolBox />
+    <Board />
+  </div>
+  
   );
 }

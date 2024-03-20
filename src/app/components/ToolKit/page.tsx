@@ -1,6 +1,6 @@
 "use client";
 import { menuItems } from "@/app/constants";
-import { changeBrushSize } from "@/app/slice/toolBoxSlice";
+import { changeBrushSize,changeColor } from "@/app/slice/toolBoxSlice";
 import React, { ChangeEvent, useState } from "react";
 import { ChromePicker, ColorResult } from "react-color";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +26,7 @@ function ToolBox() {
 
   const handleChangeColor = (color: ColorResult) => {
     setSelectedColor(color.hex);
-    dispatch(changeBrushSize({item:activeMenuItem,color:color.hex}))
+    dispatch(changeColor({item:activeMenuItem,color:color.hex}))
   };
 
   const updateBrushSize = (e: ChangeEvent<HTMLInputElement>) => {
@@ -68,9 +68,10 @@ function ToolBox() {
         }
         <div className="mt-4 flex-col">
         <div>
-          <label htmlFor="brushSize" className="text-lg font-semibold">
-            Brush Size : {brushSize} 
-          </label>
+        <label htmlFor="brushSize" className="text-lg font-semibold">
+  {showStroke ? 'Brush' : 'Eraser'} Size: {brushSize}
+</label>
+
           </div>
           <input
             type="range"
