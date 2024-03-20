@@ -20,9 +20,6 @@ function Board() {
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
     const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
-    if(context){
-      context.fillStyle = '#FFFFFF'
-    }
     if (actionMenuItem === menuItems.DOWNLOAD) {
       const URL = canvas.toDataURL('image/png');
       const anchor = document.createElement("a");
@@ -56,9 +53,6 @@ function Board() {
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
     const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
-    if(context){
-      context.fillStyle = '#FFFFFF'
-    }
     if (context) {
       context.strokeStyle = color;
       context.lineWidth = size;
@@ -71,8 +65,10 @@ function Board() {
     const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    if(context){
+    if(context && historyPointer.current === 0){
+      context.rect(0,0,window.innerWidth,window.innerHeight)
       context.fillStyle = '#FFFFFF'
+      context.fill()
     }
     const imageData: ImageData | undefined = context?.getImageData(
       0,
@@ -126,7 +122,7 @@ function Board() {
     };
   }, []);
 
-  return <canvas ref={canvasRef}></canvas>;
+  return <canvas ref={canvasRef} ></canvas>;
 }
 
 export default Board;
