@@ -1,17 +1,17 @@
-interface RootState{
+export interface RootState{
     menu:MenuState
 }
 
-interface MenuState{
+export interface MenuState{
     activeMenuItem: string;
 
 }
 
-interface ForToolBox{
+export interface ForToolBox{
     toolbox:string[]
 }
 
-interface ForColorAndSize{
+export interface ForColorAndSize{
      color:string,
      size:number
 }

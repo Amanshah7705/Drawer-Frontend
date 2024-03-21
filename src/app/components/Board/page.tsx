@@ -3,16 +3,11 @@ import { menuItems } from "@/app/constants";
 import { actionItemClick } from "@/app/slice/menuSlice";
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { io } from "socket.io-client";
+import { socket } from "@/app/socket";
+import { ForColorAndSize, ForToolBox, RootState } from "@/app/returnType";
+import { changeBrushSize, changeColor } from "@/app/slice/toolBoxSlice";
 let file = 1;
 function Board() {
-  const socket = io("http://localhost:5000",{
-    withCredentials: true,
-    extraHeaders: {
-      "my-custom-header": "abcd"
-    }
-  
-  })
   const dispatch = useDispatch();
   const drawHistory = useRef<ImageData[]>([]);
   const historyPointer = useRef(0);
@@ -65,6 +60,12 @@ function Board() {
       context.strokeStyle = color;
       context.lineWidth = size;
     }
+    socket.on('changeConfig',(colorSize:ForColorAndSize)=>{
+      if (context) {
+        context.strokeStyle=colorSize.color
+        context.lineWidth=colorSize.size
+      }
+    })
   }, [color, size]);
 
   useLayoutEffect(() => {
@@ -103,10 +104,12 @@ function Board() {
     const handleMouseDown = (e: MouseEvent) => {
       shouldDraw.current = true;
       beginPath(e.clientX, e.clientY);
+      socket.emit('beginPath',{x:e.clientX,y:e.clientY})
     };
     const handleMouseMove = (e: MouseEvent) => {
       if (shouldDraw.current) {
         drawPath(e.clientX, e.clientY);
+        socket.emit('drawPath',{x:e.clientX,y:e.clientY})
       }
     };
     const hadnleMouseUp = (e: MouseEvent) => {
@@ -126,13 +129,24 @@ function Board() {
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseup", hadnleMouseUp);
 
-    socket.on("connect",()=>{
-      console.log(1)
+    socket.on('beginPath',(Coordinates)=>{
+           beginPath(Coordinates.x,Coordinates.y)
     })
+    socket.on('drawPath',(Coordinates)=>{
+      drawPath(Coordinates.x,Coordinates.y)
+})
+
+
     return () => {
       canvas.removeEventListener("mousedown", handleMouseDown);
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", hadnleMouseUp);
+      socket.off('beginPath',(Coordinates)=>{
+        beginPath(Coordinates.x,Coordinates.y)
+ })
+ socket.off('drawPath',(Coordinates)=>{
+   drawPath(Coordinates.x,Coordinates.y)
+})
     };
   }, []);
 

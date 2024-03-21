@@ -4,6 +4,8 @@ import { changeBrushSize,changeColor } from "@/app/slice/toolBoxSlice";
 import React, { ChangeEvent, useState } from "react";
 import { ChromePicker, ColorResult } from "react-color";
 import { useDispatch, useSelector } from "react-redux";
+import { socket } from "@/app/socket";
+import { ForColorAndSize, RootState } from "@/app/returnType";
 function ToolBox() {
   const dispatch = useDispatch()
   const [displayColorPicker, setDisplayColorPicker] = useState(false);
@@ -27,12 +29,19 @@ function ToolBox() {
   const handleChangeColor = (color: ColorResult) => {
     setSelectedColor(color.hex);
     dispatch(changeColor({item:activeMenuItem,color:color.hex}))
+    socket.emit('changeConfig',{color:color.hex,size:brushSize})
   };
 
   const updateBrushSize = (e: ChangeEvent<HTMLInputElement>) => {
     dispatch(changeBrushSize({item:activeMenuItem,size:e.target.value}))
     setBrushSize(+e.target.value);
+    socket.emit('changeConfig',{color:selectedColor,size:e.target.value})
   };
+
+  socket.on('changeConfig',(colorSize:ForColorAndSize)=>{
+        setSelectedColor(colorSize.color)
+        setBrushSize(colorSize.size)
+  })
 
   return (
     <div className=" absolute p-4 flex flex-col ml-auto mr-auto w-200">
