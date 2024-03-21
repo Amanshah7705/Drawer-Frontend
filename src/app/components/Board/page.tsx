@@ -3,8 +3,16 @@ import { menuItems } from "@/app/constants";
 import { actionItemClick } from "@/app/slice/menuSlice";
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { io } from "socket.io-client";
 let file = 1;
 function Board() {
+  const socket = io("http://localhost:5000",{
+    withCredentials: true,
+    extraHeaders: {
+      "my-custom-header": "abcd"
+    }
+  
+  })
   const dispatch = useDispatch();
   const drawHistory = useRef<ImageData[]>([]);
   const historyPointer = useRef(0);
@@ -19,7 +27,7 @@ function Board() {
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
+    const context: CanvasRenderingContext2D | null = canvas.getContext("2d",{ willReadFrequently: true });
     if (actionMenuItem === menuItems.DOWNLOAD) {
       const URL = canvas.toDataURL('image/png');
       const anchor = document.createElement("a");
@@ -52,7 +60,7 @@ function Board() {
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
+    const context: CanvasRenderingContext2D | null = canvas.getContext("2d",{ willReadFrequently: true });
     if (context) {
       context.strokeStyle = color;
       context.lineWidth = size;
@@ -60,9 +68,11 @@ function Board() {
   }, [color, size]);
 
   useLayoutEffect(() => {
+   
+
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
+    const context: CanvasRenderingContext2D | null = canvas.getContext("2d",{ willReadFrequently: true });
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     if(context && historyPointer.current === 0){
@@ -115,6 +125,10 @@ function Board() {
     canvas.addEventListener("mousedown", handleMouseDown);
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseup", hadnleMouseUp);
+
+    socket.on("connect",()=>{
+      console.log(1)
+    })
     return () => {
       canvas.removeEventListener("mousedown", handleMouseDown);
       canvas.removeEventListener("mousemove", handleMouseMove);
