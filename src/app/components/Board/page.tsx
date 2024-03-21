@@ -5,8 +5,9 @@ import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { socket } from "@/app/socket";
 import { ForColorAndSize, ForToolBox, RootState } from "@/app/returnType";
-import { changeBrushSize, changeColor } from "@/app/slice/toolBoxSlice";
+
 let file = 1;
+
 function Board() {
   const dispatch = useDispatch();
   const drawHistory = useRef<ImageData[]>([]);
@@ -22,9 +23,11 @@ function Board() {
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context: CanvasRenderingContext2D | null = canvas.getContext("2d",{ willReadFrequently: true });
+    const context: CanvasRenderingContext2D | null = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
     if (actionMenuItem === menuItems.DOWNLOAD) {
-      const URL = canvas.toDataURL('image/png');
+      const URL = canvas.toDataURL("image/png");
       const anchor = document.createElement("a");
       anchor.href = URL;
       anchor.download = `${file}.png`;
@@ -32,21 +35,20 @@ function Board() {
       file++;
     } else if (actionMenuItem === menuItems.UNDO) {
       const imageData: ImageData | undefined =
-        drawHistory.current[historyPointer.current-1];
+        drawHistory.current[historyPointer.current - 1];
       if (imageData) {
         context?.putImageData(imageData, 0, 0);
         if (historyPointer.current > 1) {
           historyPointer.current = historyPointer.current - 1;
         }
       }
-    }
-    else if(actionMenuItem === menuItems.REDO){
+    } else if (actionMenuItem === menuItems.REDO) {
       const imageData: ImageData | undefined =
-      drawHistory.current[historyPointer.current+1];
-      if(imageData){
+        drawHistory.current[historyPointer.current + 1];
+      if (imageData) {
         context?.putImageData(imageData, 0, 0);
-        if(historyPointer.current < drawHistory.current.length -1){
-          historyPointer.current = historyPointer.current +1
+        if (historyPointer.current < drawHistory.current.length - 1) {
+          historyPointer.current = historyPointer.current + 1;
         }
       }
     }
@@ -55,31 +57,33 @@ function Board() {
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context: CanvasRenderingContext2D | null = canvas.getContext("2d",{ willReadFrequently: true });
+    const context: CanvasRenderingContext2D | null = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
     if (context) {
       context.strokeStyle = color;
       context.lineWidth = size;
     }
-    socket.on('changeConfig',(colorSize:ForColorAndSize)=>{
+    socket.on("changeConfig", (colorSize: ForColorAndSize) => {
       if (context) {
-        context.strokeStyle=colorSize.color
-        context.lineWidth=colorSize.size
+        context.strokeStyle = colorSize.color;
+        context.lineWidth = colorSize.size;
       }
-    })
+    });
   }, [color, size]);
 
   useLayoutEffect(() => {
-   
-
     if (!canvasRef.current) return;
     const canvas: HTMLCanvasElement = canvasRef.current;
-    const context: CanvasRenderingContext2D | null = canvas.getContext("2d",{ willReadFrequently: true });
+    const context: CanvasRenderingContext2D | null = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    if(context && historyPointer.current === 0){
-      context.rect(0,0,window.innerWidth,window.innerHeight)
-      context.fillStyle = '#FFFFFF'
-      context.fill()
+    if (context && historyPointer.current === 0) {
+      context.rect(0, 0, window.innerWidth, window.innerHeight);
+      context.fillStyle = "#FFFFFF";
+      context.fill();
     }
     const imageData: ImageData | undefined = context?.getImageData(
       0,
@@ -104,12 +108,12 @@ function Board() {
     const handleMouseDown = (e: MouseEvent) => {
       shouldDraw.current = true;
       beginPath(e.clientX, e.clientY);
-      socket.emit('beginPath',{x:e.clientX,y:e.clientY})
+      socket.emit("beginPath", { x: e.clientX, y: e.clientY });
     };
     const handleMouseMove = (e: MouseEvent) => {
       if (shouldDraw.current) {
         drawPath(e.clientX, e.clientY);
-        socket.emit('drawPath',{x:e.clientX,y:e.clientY})
+        socket.emit("drawPath", { x: e.clientX, y: e.clientY });
       }
     };
     const hadnleMouseUp = (e: MouseEvent) => {
@@ -129,28 +133,27 @@ function Board() {
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseup", hadnleMouseUp);
 
-    socket.on('beginPath',(Coordinates)=>{
-           beginPath(Coordinates.x,Coordinates.y)
-    })
-    socket.on('drawPath',(Coordinates)=>{
-      drawPath(Coordinates.x,Coordinates.y)
-})
-
+    socket.on("beginPath", (Coordinates) => {
+      beginPath(Coordinates.x, Coordinates.y);
+    });
+    socket.on("drawPath", (Coordinates) => {
+      drawPath(Coordinates.x, Coordinates.y);
+    });
 
     return () => {
       canvas.removeEventListener("mousedown", handleMouseDown);
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", hadnleMouseUp);
-      socket.off('beginPath',(Coordinates)=>{
-        beginPath(Coordinates.x,Coordinates.y)
- })
- socket.off('drawPath',(Coordinates)=>{
-   drawPath(Coordinates.x,Coordinates.y)
-})
+      socket.off("beginPath", (Coordinates) => {
+        beginPath(Coordinates.x, Coordinates.y);
+      });
+      socket.off("drawPath", (Coordinates) => {
+        drawPath(Coordinates.x, Coordinates.y);
+      });
     };
   }, []);
 
-  return <canvas ref={canvasRef} ></canvas>;
+  return <canvas ref={canvasRef}></canvas>;
 }
 
 export default Board;
